@@ -1,12 +1,10 @@
 'use server';
 
 import { AuthError } from 'next-auth';
-import { hash } from 'bcryptjs';
-import { z } from 'zod';
 import { signIn, signOut } from '@/auth';
 import { env } from '@/lib/env';
-import { getRepo, RepoError } from '@/lib/repo';
-import { addSampleSets } from '@/lib/sample';
+import { RepoError } from '@/lib/repo';
+import { createAccount, signupSchema } from '@/lib/services/accounts';
 
 export type FormState = { error?: string; fields?: Record<string, string> } | undefined;
 
@@ -29,15 +27,6 @@ export async function loginAction(_prev: FormState, form: FormData): Promise<For
   }
 }
 
-const signupSchema = z
-  .object({
-    name: z.string().trim().max(80).optional(),
-    email: z.email('Enter a valid email address.'),
-    password: z.string().min(8, 'Password must be at least 8 characters.').max(200),
-    confirm: z.string(),
-  })
-  .refine((v) => v.password === v.confirm, { message: 'Passwords do not match.', path: ['confirm'] });
-
 export async function signupAction(_prev: FormState, form: FormData): Promise<FormState> {
   const input = {
     name: String(form.get('name') ?? ''),
@@ -51,14 +40,8 @@ export async function signupAction(_prev: FormState, form: FormData): Promise<Fo
   const parsed = signupSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
 
-  const repo = getRepo();
   try {
-    const user = await repo.createUser({
-      email: parsed.data.email,
-      name: parsed.data.name || null,
-      passwordHash: await hash(parsed.data.password, 12),
-    });
-    if (env.SAMPLE_SETS_FOR_NEW_USERS) await addSampleSets(repo, user.id);
+    await createAccount(parsed.data);
   } catch (err) {
     if (err instanceof RepoError && err.code === 'email_taken') return { error: err.message, fields };
     throw err;

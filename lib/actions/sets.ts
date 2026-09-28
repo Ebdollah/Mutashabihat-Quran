@@ -4,15 +4,10 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireUserId } from '@/lib/auth/session';
 import { getVerse, QuranApiError, type Verse } from '@/lib/quran/client';
-import { parseKey } from '@/lib/quran/verseKey';
-import { isValidPhrase } from '@/lib/quran/tokens';
-import { getRepo, RepoError, type MutashabihSet, type NewMember } from '@/lib/repo';
+import { getRepo, RepoError, type MutashabihSet } from '@/lib/repo';
+import { memberInput, toNewMember, verseKeySchema as verseKey, wordIndex as idx } from '@/lib/services/members';
 
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
-
-const verseKey = z.string().refine((k) => parseKey(k) !== null, 'Invalid surah or ayah.');
-const idx = z.number().int().min(0).max(500);
-const memberInput = z.object({ key: verseKey, s: idx, e: idx });
 
 async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   try {
@@ -28,14 +23,6 @@ async function run<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
 function refresh(setId?: string) {
   revalidatePath('/sets', 'layout');
   if (setId) revalidatePath(`/sets/${setId}`);
-}
-
-/** Text always comes from the Quran API on the server; the client only sends key + word range. */
-async function toNewMember(m: z.infer<typeof memberInput>): Promise<NewMember> {
-  const verse = await getVerse(m.key);
-  if (!verse) throw new RepoError('not_found', `Ayah ${m.key} was not found.`);
-  if (!isValidPhrase(verse.text, m.s, m.e)) throw new RepoError('invalid', `Mark the similar words in ${m.key} again.`);
-  return { verseKey: m.key, phraseStart: m.s, phraseEnd: m.e, textSnapshot: verse.text };
 }
 
 export async function lookupVerse(key: string): Promise<ActionResult<{ verse: Verse; sets: MutashabihSet[] }>> {

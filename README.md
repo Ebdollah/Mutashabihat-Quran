@@ -53,3 +53,7 @@ Log in with the `SEED_USER_EMAIL` / `SEED_USER_PASSWORD` from `.env.local`, or s
 - **Storage:** every page and action calls `getRepo()` (`lib/repo`). `STORAGE=json` uses `json-repo.ts` (a local file with atomic writes) and `STORAGE=db` uses `drizzle-repo.ts`. Both implement the same interface.
 - **Auth:** Auth.js v5 (`auth.ts`) with the Credentials provider against our own `users` table. Passwords are hashed with bcrypt and sessions are JWT cookies. `proxy.ts` redirects signed-out visitors, and each page and action re-checks the session with `requireUserId()`.
 - **Differences:** word-level LCS (`lib/diff/lcs.ts`). It catches changed and missing words, and word-order changes.
+
+## Mobile API
+
+`app/api/mobile/` is the REST API used by the Flutter app in `../mobile`. It uses bearer tokens (`lib/mobile/token.ts`, signed with `AUTH_SECRET`) and the same repository as the website. Endpoint reference: `../mobile/README.md`.

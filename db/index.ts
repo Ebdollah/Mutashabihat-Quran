@@ -1,10 +1,11 @@
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core';
-import { neon, Pool as NeonPool } from '@neondatabase/serverless';
+import { neon, neonConfig, Pool as NeonPool } from '@neondatabase/serverless';
 import { drizzle as drizzleNeonHttp } from 'drizzle-orm/neon-http';
 import { drizzle as drizzleNeonWs } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
 import { Pool as PgPool } from 'pg';
 import { env, requireDatabaseUrl } from '@/lib/env';
+import { fetchWithConnectRetry } from '@/lib/net';
 import * as schema from './schema';
 
 export type DB = PgDatabase<PgQueryResultHKT, typeof schema>;
@@ -25,6 +26,8 @@ function create(): DB {
     case 'pg':
       return drizzlePg({ client: new PgPool({ connectionString: url, max: env.DB_POOL_MAX }), schema, logger }) as unknown as DB;
     default:
+      // Retry queries whose connection couldn't be opened (flaky or slow networks).
+      neonConfig.fetchFunction = fetchWithConnectRetry;
       return drizzleNeonHttp({ client: neon(url), schema, logger }) as unknown as DB;
   }
 }
