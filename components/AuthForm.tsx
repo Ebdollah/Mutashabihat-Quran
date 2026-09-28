@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { loginAction, signupAction, type FormState } from '@/lib/actions/auth';
 import { buttonClass } from '@/components/ui/Button';
+import { EyeIcon, EyeOffIcon } from '@/components/ui/icons';
 
 const inputCls = 'h-12 w-full rounded-[10px] border border-line-2 bg-surface px-3 text-[15px] text-ink outline-none focus:border-teal';
 
@@ -22,12 +23,36 @@ function Field({
   defaultValue?: string;
   required?: boolean;
 }) {
+  const [visible, setVisible] = useState(false);
+  const isPassword = type === 'password';
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={name} className="text-[13px] font-medium text-ink-2">
         {label}
       </label>
-      <input id={name} name={name} type={type} autoComplete={autoComplete} defaultValue={defaultValue} required={required} className={inputCls} />
+      <div className="relative">
+        <input
+          id={name}
+          name={name}
+          type={isPassword && visible ? 'text' : type}
+          autoComplete={autoComplete}
+          defaultValue={defaultValue}
+          required={required}
+          className={isPassword ? `${inputCls} pr-12` : inputCls}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setVisible((v) => !v)}
+            aria-label={visible ? 'Hide password' : 'Show password'}
+            aria-pressed={visible}
+            aria-controls={name}
+            className="absolute top-0 right-0 flex h-12 w-12 cursor-pointer items-center justify-center rounded-r-[10px] text-ink-3 hover:text-ink"
+          >
+            {visible ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
