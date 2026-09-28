@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import { logoutAction } from '@/lib/actions/auth';
 import { LogoutIcon, PlusIcon } from '@/components/ui/icons';
+import { Logo } from './Logo';
 import { NavLinks } from './NavLinks';
 
 export async function TopBar() {
@@ -10,7 +11,8 @@ export async function TopBar() {
 
   return (
     <header className="flex h-[60px] shrink-0 items-center gap-4 border-b border-line bg-surface-2 px-4 md:h-[68px] md:gap-8 md:px-8">
-      <Link href="/sets" className="flex items-baseline gap-2.5 text-ink no-underline">
+      <Link href="/sets" className="flex items-center gap-2.5 text-ink no-underline">
+        <Logo size={40} className="size-[34px] md:size-10" />
         <span className="font-display text-[21px] font-semibold tracking-[-0.01em] md:text-2xl">Mutashabihat</span>
         <span lang="ar" dir="rtl" className="hidden font-quran text-xl text-teal sm:inline">
           متشابهات
