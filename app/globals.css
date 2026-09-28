@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Design tokens — match the design canvas (https://claude.ai/artifact/JvndWKD5BmVdfjPRRnTS8Q). */
+@theme {
+  --color-bg: #f5f2ea;
+  --color-surface: #ffffff;
+  --color-surface-2: #fbf9f4;
+  --color-muted-bg: #efebe1;
+  --color-line: #e3ddd0;
+  --color-line-2: #d6cfbf;
+  --color-ink: #1d1b17;
+  --color-ink-2: #57524a;
+  --color-ink-3: #736d63;
+  --color-ink-4: #a39c8f;
+  --color-teal: #0e5c56;
+  --color-teal-dark: #08403c;
+  --color-teal-soft: #e2eeeb;
+  --color-teal-line: #b9d6d0;
+  --color-amber-bg: #f6dda4;
+  --color-amber-ink: #4d2e00;
+  --color-amber-line: #b7790f;
+  --color-danger: #9a2b1f;
+  --color-danger-soft: #f8e5e1;
+
+  --font-sans: var(--font-plex), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-quran: var(--font-amiri-quran), "Amiri", serif;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* Arabic Quran text */
+.quran {
+  font-family: var(--font-quran);
+  direction: rtl;
+  text-align: right;
+}
